@@ -48,24 +48,26 @@ class head_motion:
         self.head_joint_trajectory_goal = JointTrajectory()
         self.head_goal_point = JointTrajectoryPoint()
         self.head_joint_trajectory_goal.joint_names = ['head_pan_joint' , 'head_tilt_joint']
+        point_found = False
         for data_ in data.points:
             if data_.time_from_start > rospy.Duration(self.head_pose_time + 1): # Trial and Fix
-                self.point.x = data_.transform.translation.x
-                self.point.y = data_.transform.translation.y
-                q = (
-                data_.transform.rotation.x,
-                data_.transform.rotation.y,
-                data_.transform.rotation.z,
-                data_.transform.rotation.w
-                )
-
-                m = tf.transformations.quaternion_matrix(q)
-                self.point.theta = tf.transformations.euler_from_matrix(m)[2]
-
+                point_found = True
                 break
-            # else: 
-                # TODO: for trajectories of less than 2 seconds 
-                # break
+
+        if not point_found:
+            data_ = data.points[-1] 
+        self.point.x = data_.transform.translation.x
+        self.point.y = data_.transform.translation.y
+        q = (
+        data_.transform.rotation.x,
+        data_.transform.rotation.y,
+        data_.transform.rotation.z,
+        data_.transform.rotation.w
+        )
+
+        m = tf.transformations.quaternion_matrix(q)
+        self.point.theta = tf.transformations.euler_from_matrix(m)[2]   
+
         point_pos = np.array([self.point.x , self.point.y])
         robot_pos = np.array([self.robot_pose.x , self.robot_pose.y])
         vector_to_goal = point_pos - robot_pos
