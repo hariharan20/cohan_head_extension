@@ -45,13 +45,17 @@ class gaze:
         )
 
         m = tf.transformations.quaternion_matrix(q)
-        point_theta = tf.transformations.euler_from_matrix(m)[2] #YET TO USE   
+        point_theta = tf.transformations.euler_from_matrix(m)[2]   
 
         point_pos = np.array([point_x , point_y])
         robot_pos = np.array([robot_current_pose.x , robot_current_pose.y])
         vector_to_goal = point_pos - robot_pos
-        goal_yaw = math.atan2(vector_to_goal[1], vector_to_goal[0])
-        goal_orientation = (goal_yaw - robot_current_pose.theta + math.pi) % (2 * math.pi) - math.pi 
+
+        if point_found:
+            goal_yaw = math.atan2(vector_to_goal[1], vector_to_goal[0])
+            goal_orientation = normalize_angle(goal_yaw - robot_current_pose.theta) 
+        else : 
+            goal_orientation = normalize_angle(point_theta - robot_current_pose.theta)
         self.rotate_head(goal_orientation , 0.0)
 
     def look_at_agent(self, tracked_agents_data, robot_current_pose):
