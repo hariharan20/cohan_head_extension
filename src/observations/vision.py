@@ -113,3 +113,7 @@ class vision :
 
 
         return point_body.point.x, point_body.point.y, point_body.point.z
+
+
+    def get_human_gaze_on_map(self):
+        
